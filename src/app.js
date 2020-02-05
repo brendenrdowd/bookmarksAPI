@@ -3,19 +3,22 @@ const express = require('express'),
   morgan = require('morgan'),
   cors = require('cors'),
   helmet = require('helmet'),
+  bookmarkRouter = require('./bookmarks/bookmarkRouter'),
+  validateBearerToken = require('./validateBearerToken'),
+  NODE_ENV = process.env.NODE_ENV || "development",
   app = express();
 
 const morganOption = (NODE_ENV === 'production')
   ? 'tiny'
   : 'common';
 
-app.use(morgan(morganOption))
-app.use(helmet())
-app.use(cors())
+app.use(morgan(morganOption));
+app.use(helmet());
+app.use(cors());
+app.use(validateBearerToken)
 
-app.get('/', (req, res) => {
-  res.send('Hello, world!')
-})
+//routing
+app.use('/bookmarks',bookmarkRouter)
 
 app.use(function errorHandler(error, req, res, next) {
   let response
@@ -28,4 +31,4 @@ app.use(function errorHandler(error, req, res, next) {
   res.status(500).json(response)
 })
 
-module.exports = app
+module.exports = app;

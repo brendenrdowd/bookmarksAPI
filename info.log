@@ -1,0 +1,15 @@
+{"message":"Data required","level":"error"}
+{"message":"No data","level":"error"}
+{"message":"No data","level":"error"}
+{"message":"No data","level":"error"}
+{"message":"No data","level":"error"}
+{"message":"No data","level":"error"}
+{"message":"No data","level":"error"}
+{"message":"Title is required","level":"error"}
+{"message":"Title is required","level":"error"}
+{"message":"Title is required","level":"error"}
+{"message":"Url is required","level":"error"}
+{"message":"Url is required","level":"error"}
+{"message":"Bookmark with id 549da1f1-6a64-4d5f-b893-35393de2c4ea created","level":"info"}
+{"message":"Bookmark with id 549da not found.","level":"error"}
+{"message":"Bookmark with id 938475 deleted.","level":"info"}
