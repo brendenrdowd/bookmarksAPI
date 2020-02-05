@@ -67,6 +67,7 @@ bookmarkRouter.route('/:id')
     logger.info(`Bookmark with id ${id} deleted.`);
     res
       .status(204)
+      // .location(`http://localhost:8000/bookmark/`)
       .end(); 
   })
 
