@@ -21,6 +21,10 @@ app.use(validateBearerToken);
 //routing
 app.use('/bookmarks',bookmarkRouter);
 
+app.get('*', (req,res) => {
+  res.status(404).send("Page Not Found")
+})
+
 app.use(errorHandler);
 
 module.exports = app;

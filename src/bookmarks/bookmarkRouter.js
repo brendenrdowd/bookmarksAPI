@@ -55,6 +55,9 @@ bookmarkRouter.route('/:id')
     const id = req.params.id;
     const db = req.app.get('db')
     bookmarksService.getById(db, id).then(result => {
+      if (!result) {
+        res.status(404).send()
+      }
       res.send(result)
     })
   })
@@ -82,6 +85,5 @@ bookmarkRouter.route('/:id')
         .end();
     })
   })
-
 
 module.exports = bookmarkRouter
