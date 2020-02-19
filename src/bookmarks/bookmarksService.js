@@ -6,7 +6,9 @@ const bookmarksService = {
     return db.select('*').from('bookmarks').where('id', id).first()
   },
   insertBookmark(db, newBookmark) {
-    return db.from('bookmarks').returning('*').insert(newBookmark)
+    return db.from('bookmarks').returning('*').insert(newBookmark).then(res => {
+      return res[0]
+    })
   },
   updateBookmark(db, id, newData) {
     return db('bookmarks').where({ id }).update(newData)
