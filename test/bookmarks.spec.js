@@ -1,7 +1,6 @@
 const knex = require('knex');
 const app = require('../src/app');
 const bookmarks = require('./bookmarks.fixture');
-require('dotenv').config()
 
 describe('bookmark endpoints work properly', () => {
   let db;

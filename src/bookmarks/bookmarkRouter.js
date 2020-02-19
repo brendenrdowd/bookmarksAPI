@@ -42,7 +42,7 @@ bookmarkRouter.route('/')
 
     const db = req.app.get('db')
     bookmarksService.insertBookmark(db, bookmark).then(result => {
-      logger.info(`Bookmark with id ${result.id} created`);
+      logger.info(`Bookmark with id ${result} created`);
       res
         .status(201)
         .location(`http://localhost:8000/bookmark/${result.id}`)
