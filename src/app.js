@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express'),
   morgan = require('morgan'),
   cors = require('cors'),
@@ -20,6 +19,10 @@ app.use(validateBearerToken);
 
 //routing
 app.use('/bookmarks',bookmarkRouter);
+
+app.get('*', (req,res) => {
+  res.status(404).send("Page Not Found")
+})
 
 app.use(errorHandler);
 
