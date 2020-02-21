@@ -135,18 +135,48 @@ describe('bookmark endpoints work properly', () => {
   })
 
   describe('POST /bookmarks', () => {
-    // make sure theres a title
-    // it('should have a title',()=>{
+    it('responds with 400 if no title is supplied', () => {
+      const newBookmark = {
+        url: "google.com",
+        rating: 1
+      }
+      return supertest(app)
+        .post('/bookmarks')
+        .send('newBookmark')
+        .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+        .expect(400, {
+          error: { message: 'Title is required' }
+        })
+    })
 
-    // })
-    // make sure theres a url and its valid
-    // it('should have a title',()=>{
-      
-    // })
-    // make sure theres a rating between 1 and 5
-    // it('should have a title',()=>{
-      
-    // })
+    it('responds with 400 if no url is supplied', () => {
+      const newBookmark = {
+        title: "google.com",
+        rating: 1
+      }
+      return supertest(app)
+        .post('/bookmarks')
+        .send('newBookmark')
+        .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+        .expect(400, {
+          error: { message: 'URL is required' }
+        })
+    })
+
+    it('responds with 400 if no rating is supplied', () => {
+      const newBookmark = {
+        url: "google.com",
+        title: "Gergle"
+      }
+      return supertest(app)
+        .post('/bookmarks')
+        .send('newBookmark')
+        .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+        .expect(400, {
+          error: { message: 'Rating is required' }
+        })
+    })
+
     it('POST /bookmarks responds with 201 and returns created bookmark', () => {
       const newBookmark = {
         title: 'Old Search Engine',
@@ -174,6 +204,7 @@ describe('bookmark endpoints work properly', () => {
             .expect(res.body)
         })
     })
+
     it('remove XSS attack content', () => {
       const { maliciousBookmark, expectedBookmark } = makeMaliciousBookmark();
       return supertest(app)
@@ -185,6 +216,52 @@ describe('bookmark endpoints work properly', () => {
           expect(res.body.title).to.eql(expectedBookmark.title)
           expect(res.body.description).to.eql(expectedBookmark.description)
         })
+    })
+  })
+
+  describe('PATCH /bookmarks/:id', () => {
+    context('given there is no data in database', () => {
+      it('give us a 404 error when it can\'t find the bookmark', () => {
+        const id = 12;
+        return supertest(app)
+          .patch(`/bookmarks/a${id}`)
+          .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+          .expect(404)
+      })
+    })
+
+    context('given there is data in database', () => {
+      beforeEach('seed bookmarks', () => db.into('bookmarks').insert(bookmarks))
+
+      const updatedBookmark = {
+        description: 'Maybe not the best',
+        rating: 1,
+      };
+
+      it('responds with 204 and properly updates bookmark in table', () => {
+        const id = 1
+        const expectedBookmark = {
+          ...bookmarks[id - 1],
+          ...updatedBookmark
+        }
+        return supertest(app)
+          .patch(`/bookmarks/${id}`)
+          .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+          .send(updatedBookmark)
+          .expect(204)
+          .then(res =>
+            supertest(app)
+              .get(`/bookmarks/${id}`)
+              .expect(expectedBookmark)
+          )
+      })
+
+      it('responds with 400 if no values are supplied', () => {
+        return supertest(app)
+          .patch(`/bookmarks/1`)
+          .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+          .expect(400)
+      })
     })
   })
 })
