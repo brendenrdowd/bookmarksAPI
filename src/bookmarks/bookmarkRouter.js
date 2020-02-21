@@ -24,7 +24,7 @@ bookmarkRouter.route('/')
         res.json(result.map(serializeBookmark))
       })
   })
-  .post(bodyparser, (req, res,next) => {
+  .post(bodyparser, (req, res, next) => {
     for (const field of ['title', 'url', 'rating']) {
       if (!req.body[field]) {
         logger.error(`${field} is required`)
@@ -33,6 +33,8 @@ bookmarkRouter.route('/')
         })
       }
     }
+
+    const { title, url, rating, description } = req.body;
 
     const ratingNum = Number(rating)
 
@@ -49,8 +51,6 @@ bookmarkRouter.route('/')
         error: { message: `'url' must be a valid URL` }
       })
     }
-
-    const { title, url, rating, description } = req.body;
 
     const bookmark = {
       title: xss(title),
@@ -71,6 +71,18 @@ bookmarkRouter.route('/')
   })//end post
 
 bookmarkRouter.route('/:id')
+  .all((req, res, next) => {
+    const id = req.params.id;
+    const db = req.app.get('db')
+    bookmarksService.getById(db, id).then(result => {
+      if (!result) {
+        return res.status(404).send()
+      }
+      else {
+        next()
+      }
+    })
+  })
   .get((req, res) => {
     const id = req.params.id;
     const db = req.app.get('db')
@@ -81,26 +93,36 @@ bookmarkRouter.route('/:id')
       res.json(serializeBookmark(result))
     })
   })
-  // .put(bodyparser, (req, res) => {
-  //   const id = req.params.id;
-  //   const db = req.app.get('db');
+  .patch(bodyparser, (req, res, next) => {
+    const { title, url, description, rating } = req.body;
+    const bookmarkToUpdate = { title, url, description, rating }
 
-  //   const bookmark = {
-  //     title,
-  //     url,
-  //     description,
-  //     rating
-  //   };
+    const numberOfValues = Object.values(bookmarkToUpdate).filter(Boolean).length
+    if (numberOfValues === 0) {
+      return res.status(400).json({
+        error: {
+          message: `Request body must contain either 'title', 'url', 'description' or 'rating'`
+        }
+      })
+    }
 
-  //   bookmarksService.updateBookmark(db, id)
-  // })
+    bookmarksService.updateBookmark(
+      req.app.get('db'),
+      req.params.id,
+      bookmarkToUpdate
+    )
+      .then(numRowsAffected => {
+        return res.status(204).end()
+      })
+      .catch(next)
+  })
   .delete((req, res) => {
     const id = req.params.id;
     const db = req.app.get('db')
 
     bookmarksService.deleteBookmark(db, id).then(result => {
       logger.info(`Bookmark with id ${result.id} deleted.`);
-      if(!result) {
+      if (!result) {
         res.status(404).end()
       }
       res
